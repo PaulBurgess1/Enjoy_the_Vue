@@ -1,4 +1,6 @@
-# enjoy_the_vue
+# Enjoy the Vue - Weather App
+Enjoy the Vue is a weather app made with Vue that uses the openweathermap api.
+The weather icons are from https://fontawesome.com/.
 
 ## Project setup
 ```

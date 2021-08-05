@@ -29,8 +29,6 @@
               <div class="weather-icon">
                 <i v-bind:class="icon"></i>
               </div>
-              
-              
               <div>{{result.weather[0].main}}</div>
               <p>{{result.weather[0].description}}</p>
           </div> 
