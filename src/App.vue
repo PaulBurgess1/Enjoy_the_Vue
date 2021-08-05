@@ -46,6 +46,17 @@
             <div class="weather-temp-num">
               {{Math.round(result.main.temp)+273}}&#176;&#8490;
             </div>
+            <div class="weather-temp-info">
+              <p>Humidity: {{result.main.humidity}}%</p>
+              <p>Wind Speed: {{result.wind.speed}} m/s</p>
+              <p>Pressure: {{result.main.pressure}} hPa</p>
+              <p>Sunrise: 
+                {{new Date(result.sys.sunrise * 1000).getHours()+":" + new Date(result.sys.sunrise * 1000).getMinutes()}}
+                UTC</p>
+              <p>Sunset: 
+                {{new Date(result.sys.sunset * 1000).getHours()+":" + new Date(result.sys.sunset * 1000).getMinutes()}}
+                UTC</p>
+            </div>
           </div>
         </div>
       </div>
@@ -59,7 +70,7 @@ export default {
   name: 'App',
   data () {
     return {
-      API_KEY: "d842da581fbc5da3a478b0c8aa551b4c", //TODO: ADD SECRET
+      API_KEY: "d842da581fbc5da3a478b0c8aa551b4c",
       URL_BASE: "https://api.openweathermap.org/data/2.5/",
       query:'',
       result: {},
@@ -74,7 +85,6 @@ export default {
       const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
       var month = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul","Aug", "Sep", "Oct", "Nov", "Dec"];
       this.date = [days[d.getDay()],d.getDate(),month[d.getMonth()],d.getFullYear()];
-      //console.log(this.date);
     },
     setIcon (weather){
       //Fontawesome icons
@@ -95,8 +105,12 @@ export default {
     },
     async weatherInit(){
       let q= this.URL_BASE+'weather?q=Washington&units=metric&appid='+this.API_KEY;
-      //console.log(q);
-      fetch(q).then(response => {return response.json()}).then(this.setResult);
+      try {
+        fetch(q).then(response => {return response.json()}).then(this.setResult);
+      } catch (error) {
+        alert(error.message);
+      }
+      
     },
     setBG (temp){
       if (temp > 40){
@@ -113,22 +127,39 @@ export default {
       }
     },
     fetchWeather (e){
-      console.log(e.type);
       if (e.key == "Enter"){
         let q= this.URL_BASE+'weather?q='+this.query+'&units=metric&appid='+this.API_KEY;
-        //console.log(q);
-        fetch(q)
-        .then(res =>{
-          //console.log(res.json())
-          return res.json();
-        }).then(this.setResult);
+        try {
+          fetch(q)
+          .then(res =>{
+            if (res.status == 200){
+              let data =res.json();
+
+              return data;
+            }
+            else if(res.status == 404){
+              alert("Error "+res.status+": Cannot find city. Please try again.");
+              return;
+            }
+            else{
+              alert("Error "+res.status+": "+res.statusText);
+              return;
+            }
+            
+          }).then(this.setResult);
+        }
+        catch(err) {
+          alert(err.message); 
+        }
+        
       }
     },
     setResult (data){
-      console.log(data);
-      this.result = data;
-      this.setIcon(data.weather[0].main);
-      this.setBG(data.main.temp)
+      if(data){
+        this.result = data;
+        this.setIcon(data.weather[0].main);
+        this.setBG(data.main.temp)
+      }
     }
   },
   beforeMount(){
@@ -244,7 +275,7 @@ main{
   display: inline-block;
   padding: 1rem;
   width: fill;
-  font-size: 4.5rem;
+  font-size: 4rem;
   color: white;
   text-shadow: 4px 7px rgba(0, 0, 0, 0.25);
   background-color: rgba(255, 255, 255, 0.3);
@@ -253,6 +284,7 @@ main{
 .weather-temp-num{
   max-width:14.2rem;
   margin:auto;
+  margin-bottom: 0.5rem;
   border: 2px solid black;
   border-radius: 1rem;
   box-shadow: 0.5rem 0.5rem 0.5rem rgba(0, 0, 0, 0.25);
@@ -263,6 +295,20 @@ main{
 }
 .weather-icon i{
   font-size:10rem;
+  margin-bottom: 0.3rem;
 }
-
+.weather-temp-info{
+  display: block;
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 2rem;
+  padding: 0.5rem 0;
+  border: 2px solid black;
+  border-radius: 1rem;
+  box-shadow: 0.5rem 0.5rem 0.5rem rgba(0, 0, 0, 0.25);
+  background-color: rgba(0, 0, 0, 0.10);
+}
+.weather-temp-info p{
+  margin-bottom: 0.3rem;
+}
 </style>
